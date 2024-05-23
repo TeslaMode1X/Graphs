@@ -17,6 +17,28 @@ public class WeightedGraph<V> {
         vertices.get(source).addAdjacentVertex(dest, weight);
     }
 
+
+    public boolean hasVertex(Vertex<V> v) {
+        return vertices.containsKey(v);
+    }
+
+    public List<Vertex<V>> adjacencyList(Vertex<V> v) {
+        if (!hasVertex(v)) return null;
+
+        return new ArrayList<>(v.getAdjacentVertices().keySet());
+    }
+
+    public List<Vertex<V>> getVertices() {
+        return new ArrayList<>(vertices.values());
+    }
+
+
+    public Iterable<Vertex<V>> getEdges(Vertex<V> v) {
+        if (!hasVertex(v)) return null;
+
+        return (Iterable<Vertex<V>>) vertices.get(v);
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
