@@ -2,21 +2,34 @@ import java.util.*;
 
 public class WeightedGraph<V> {
     private final Map<Vertex<V>, Vertex<V>> vertices = new HashMap<>();
+    private final boolean undirected;
+
+    public WeightedGraph(boolean undirected) {
+        this.undirected = undirected;
+    }
 
     public void addVertex(Vertex<V> vertex) {
         vertices.putIfAbsent(vertex, vertex);
     }
 
     public void addEdge(Vertex<V> source, Vertex<V> dest, double weight) {
-        if (source.equals(dest)) {
+        addVertex(source);
+        addVertex(dest);
+
+        if (hasEdge(source, dest) || source.equals(dest)) {
             return;
         }
-        vertices.putIfAbsent(source, source);
-        vertices.putIfAbsent(dest, dest);
 
         vertices.get(source).addAdjacentVertex(dest, weight);
+
+        if (undirected) {
+            vertices.get(dest).addAdjacentVertex(source, weight);
+        }
     }
 
+    public boolean hasEdge(Vertex<V> source, Vertex<V> dest) {
+        return vertices.containsKey(source) && vertices.get(source).getAdjacentVertices().containsKey(dest);
+    }
 
     public boolean hasVertex(Vertex<V> v) {
         return vertices.containsKey(v);
@@ -24,31 +37,30 @@ public class WeightedGraph<V> {
 
     public List<Vertex<V>> adjacencyList(Vertex<V> v) {
         if (!hasVertex(v)) return null;
-
-        return new ArrayList<>(v.getAdjacentVertices().keySet());
+        return new ArrayList<>(vertices.get(v).getAdjacentVertices().keySet());
     }
 
     public List<Vertex<V>> getVertices() {
-        return new ArrayList<>(vertices.values());
+        return new ArrayList<>(vertices.keySet());
     }
 
-
-    public Iterable<Vertex<V>> getEdges(Vertex<V> v) {
+    public Map<Vertex<V>, Double> getEdges(Vertex<V> v) {
         if (!hasVertex(v)) return null;
-
-        return (Iterable<Vertex<V>>) vertices.get(v);
+        return vertices.get(v).getAdjacentVertices();
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        for (Vertex<V> v : vertices.keySet()) {
+        for (Map.Entry<Vertex<V>, Vertex<V>> entry : vertices.entrySet()) {
+            Vertex<V> v = entry.getKey();
             builder.append(v.toString()).append(" -> ");
-            for (Map.Entry<Vertex<V>, Double> entry : v.getAdjacentVertices().entrySet()) {
-                builder.append(entry.getKey().toString()).append(" (").append(entry.getValue()).append("), ");
+            for (Map.Entry<Vertex<V>, Double> edge : v.getAdjacentVertices().entrySet()) {
+                builder.append(edge.getKey().toString()).append(" (").append(edge.getValue()).append("), ");
             }
             builder.append("\n");
         }
         return builder.toString();
     }
+
 }

@@ -14,7 +14,7 @@ public class DijkstraSearch<V> extends Search<V> {
         dijkstra();
     }
 
-    public void dijkstra() {
+     public void dijkstra() {
         distances.put(source, 0D);
         unsettledNodes.add(source);
 
